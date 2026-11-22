@@ -1,0 +1,32 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-test-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run automated tests
+        run: npm test
+
+      - name: Build Docker image
+        run: docker build -t webapp-cicd:latest .
+
+      - name: Stop and remove existing container
+        run: |
+          docker stop webapp-container || true
+          docker rm webapp-container || true
+
+      - name: Deploy Docker container
+        run: |
+          docker run -d --name webapp-container --restart always -p 80:3000 webapp-cicd:latest

@@ -1,0 +1,10 @@
+node_modules
+.vagrant
+*.box
+*.vmdk
+*.vdi
+.git
+.github
+tests
+Dockerfile
+.dockerignore

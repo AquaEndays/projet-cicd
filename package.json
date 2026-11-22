@@ -1,0 +1,17 @@
+{
+  "name": "webapp-cicd",
+  "version": "1.0.0",
+  "description": "Conteneur web avec CI/CD automatisé",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
