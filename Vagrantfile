@@ -14,6 +14,9 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
   config.ssh.private_key_path = ["D:/vagrant_home/insecure_private_key"]
 
+  # Port forwarding (accès immédiat sur localhost:8080 sur toute machine)
+  config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+
   # Bridged Network (Mode Pont)
   config.vm.network "public_network", bridge: ENV["VAGRANT_BRIDGE"] || "Intel(R) Wi-Fi 6E AX211 160MHz"
 
