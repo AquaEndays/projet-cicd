@@ -21,7 +21,7 @@ jobs:
 
       - name: Deploy with Docker Compose (WebApp, Prometheus, Grafana)
         run: |
-          docker compose up -d --build
+          docker compose -p webapp-cicd up -d --build --remove-orphans
 
       - name: Verify running containers
         run: |

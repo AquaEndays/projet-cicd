@@ -11,7 +11,7 @@ echo "1. Exécution des tests automatisés Jest..."
 npm test
 
 echo "2. Démarrage de la stack Docker Compose (WebApp + Prometheus + Grafana)..."
-docker compose up -d --build
+docker compose -p webapp-cicd up -d --build --remove-orphans
 
 echo "=================================================="
 echo "  ✅ Stack déployée avec succès !"
