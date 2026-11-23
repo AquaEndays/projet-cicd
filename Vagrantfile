@@ -20,14 +20,17 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 3001, host: 3001, auto_correct: true
   config.vm.network "forwarded_port", guest: 9090, host: 9090, auto_correct: true
 
-  # Mode Pont (optionnel : si Wi-Fi disponible pour accès téléphone)
-  config.vm.network "public_network", bridge: ENV["VAGRANT_BRIDGE"] || "Intel(R) Wi-Fi 6E AX211 160MHz"
+  # Mode Pont (optionnel : désactivé pour éviter les blocages de carte Wi-Fi)
+  # config.vm.network "public_network", bridge: ENV["VAGRANT_BRIDGE"] || "Intel(R) Wi-Fi 6E AX211 160MHz"
 
   # VirtualBox Provider Settings
   config.vm.provider "virtualbox" do |vb|
     vb.name = "ubuntu-jammy"
     vb.memory = "2048"
-    vb.cpus = 2
+    vb.cpus = 1
+    vb.graphicscontroller = "vmsvga"
+    vb.customize ["modifyvm", :id, "--vram", "32"]
+    vb.customize ["modifyvm", :id, "--recording", "off"]
   end
 
   # Shell Provisioning (Idempotent)
@@ -48,10 +51,10 @@ Vagrant.configure("2") do |config|
     echo "PubkeyAcceptedKeyTypes +ssh-rsa" >> /etc/ssh/sshd_config.d/vagrant.conf 2>/dev/null || true
     systemctl restart ssh || systemctl restart sshd || true
 
-    # Package updates and prerequisites (docker, docker compose plugin, git, curl)
+    # Package updates and prerequisites (docker, docker compose v2, git, curl)
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -y
-    apt-get install -y docker.io docker-compose-plugin git curl
+    apt-get install -y docker.io docker-compose-v2 git curl
 
     # Enable and start Docker service, add vagrant user to docker group
     systemctl enable --now docker
