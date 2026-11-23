@@ -29,4 +29,4 @@ jobs:
 
       - name: Deploy Docker container
         run: |
-          docker run -d --name webapp-container --restart always -p 80:3000 webapp-cicd:latest
+          docker run -d --name webapp-container --restart always -v /vagrant/public:/app/public -p 80:3000 webapp-cicd:latest
