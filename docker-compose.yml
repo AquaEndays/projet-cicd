@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  webapp:
+    build: .
+    image: webapp-cicd:latest
+    container_name: webapp-container
+    restart: always
+    ports:
+      - "80:3000"
+    volumes:
+      - /vagrant/public:/app/public
+    networks:
+      - monitoring-net
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus-container
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - monitoring-net
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: grafana-container
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring-net
+
+networks:
+  monitoring-net:
+    driver: bridge

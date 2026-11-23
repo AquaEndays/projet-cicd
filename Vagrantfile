@@ -14,10 +14,13 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
   config.ssh.private_key_path = ["D:/vagrant_home/insecure_private_key"]
 
-  # Port forwarding (accès immédiat sur localhost:8080 sur toute machine)
+  # Port forwarding pour accès direct et garanti 100% hors-ligne sur localhost
+  # (Fonctionne SANS AUCUN RÉSEAU, ni Wi-Fi, ni box, ni réglage IP !)
   config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+  config.vm.network "forwarded_port", guest: 3001, host: 3001, auto_correct: true
+  config.vm.network "forwarded_port", guest: 9090, host: 9090, auto_correct: true
 
-  # Bridged Network (Mode Pont)
+  # Mode Pont (optionnel : si Wi-Fi disponible pour accès téléphone)
   config.vm.network "public_network", bridge: ENV["VAGRANT_BRIDGE"] || "Intel(R) Wi-Fi 6E AX211 160MHz"
 
   # VirtualBox Provider Settings
@@ -30,7 +33,7 @@ Vagrant.configure("2") do |config|
   # Shell Provisioning (Idempotent)
   config.vm.provision "shell", inline: <<-SHELL
     set -e
-    echo "=== Provisioning VM for CI/CD Docker ==="
+    echo "=== Provisioning VM for CI/CD Docker & Observability ==="
 
     # SSH configuration check and authorized_keys setup
     mkdir -p /home/vagrant/.ssh
@@ -42,12 +45,13 @@ Vagrant.configure("2") do |config|
 
     sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/* 2>/dev/null || true
     sed -i 's/^#*PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/* 2>/dev/null || true
+    echo "PubkeyAcceptedKeyTypes +ssh-rsa" >> /etc/ssh/sshd_config.d/vagrant.conf 2>/dev/null || true
     systemctl restart ssh || systemctl restart sshd || true
 
-    # Package updates and prerequisites
+    # Package updates and prerequisites (docker, docker compose plugin, git, curl)
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -y
-    apt-get install -y docker.io git curl
+    apt-get install -y docker.io docker-compose-plugin git curl
 
     # Enable and start Docker service, add vagrant user to docker group
     systemctl enable --now docker
@@ -62,6 +66,7 @@ Vagrant.configure("2") do |config|
 
     echo "=== Provisioning Finished ==="
     docker --version
+    docker compose version
     node -v
     npm -v
     echo "=== Network Interfaces ==="

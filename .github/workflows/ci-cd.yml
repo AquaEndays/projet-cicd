@@ -19,14 +19,10 @@ jobs:
       - name: Run automated tests
         run: npm test
 
-      - name: Build Docker image
-        run: docker build -t webapp-cicd:latest .
-
-      - name: Stop and remove existing container
+      - name: Deploy with Docker Compose (WebApp, Prometheus, Grafana)
         run: |
-          docker stop webapp-container || true
-          docker rm webapp-container || true
+          docker compose up -d --build
 
-      - name: Deploy Docker container
+      - name: Verify running containers
         run: |
-          docker run -d --name webapp-container --restart always -v /vagrant/public:/app/public -p 80:3000 webapp-cicd:latest
+          docker compose ps
