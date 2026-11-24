@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
     vb.name = "ubuntu-jammy"
     vb.memory = "2048"
     vb.cpus = 1
-    vb.graphicscontroller = "vmsvga"
+    vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
     vb.customize ["modifyvm", :id, "--vram", "32"]
     vb.customize ["modifyvm", :id, "--recording", "off"]
   end
